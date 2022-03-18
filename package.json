@@ -1,0 +1,33 @@
+{
+  "name": "DIPLOM-SERVER__AHJ-19",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "forever server.js",
+    "watch": "forever -w server.js"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KeciLust/DIPLOM-SERVER__AHJ-19.git"
+  },
+  "author": "Keci",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KeciLust/DIPLOM-SERVER__AHJ-19/issues"
+  },
+  "homepage": "https://github.com/KeciLust/DIPLOM-SERVER__AHJ-19#readme",
+  "dependencies": {
+    "forever": "^4.0.3",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-router": "^10.1.1",
+    "koa-static": "^5.0.0",
+    "uuid": "^8.3.2",
+    "ws": "^8.5.0"
+  }
+}
