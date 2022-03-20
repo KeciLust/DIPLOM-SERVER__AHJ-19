@@ -60,10 +60,11 @@ app.use(async (ctx, next) => {
     router.get('/file', async ctx => {
         ctx.response.body = file;
     });
-     router.get('/file/:id', async ctx => {
+     router.post('/file/:id', async ctx => {
          const i = file.findIndex(({id}) => id === ctx.params.id)
-         console.log(ctx.request.files);
-         ctx.response.body = file[i].img;
+          file[i].img = ctx.request.body;
+          console.log(file[i]);
+          ctx.response.body = file[i];
      });
     router.post('/file', async ctx => {
         const id = uuidv4()
