@@ -10,10 +10,11 @@ const router = new Router();
 const server = http.createServer(app.callback());
 const path = require('path');
 const fs = require('fs');
-const public = path.join(__dirname,
-    '/public')
+const public = path.join(__dirname, '/public')
 //const wsServer = new WS.Server({ server });
 const file = [];
+const koaStatic = require('koa-static');
+
 
 
 
@@ -25,7 +26,7 @@ app.use(koaBody({
     json: true,
     }));
     
-
+app.use(koaStatic('/public'));
 
 
 
@@ -56,21 +57,23 @@ app.use(async (ctx, next) => {
     
     }
     });
-    
+
     router.get('/file', async ctx => {
         ctx.response.body = file;
     });
+    router.get('/file/:id', async ctx => {
+        const index = public.findIndex(({id}) => id === ctx.params.id);
+        ctx.response.body = file[index].img;
+    })
      router.post('/file/:id', async ctx => {
-         const i = file.findIndex(({id}) => id === ctx.params.id)
-          file[i].img = ctx.request.body;
-          console.log(file[i]);
-          ctx.response.body = file[i];
+         const i = file.findIndex(({id}) => id === ctx.params.id);         
+          public.push({...ctx.request.body,id: id});
+          ctx.response.status = 204;
      });
     router.post('/file', async ctx => {
         const id = uuidv4()
         file.push({...ctx.request.body,id: id});
         ctx.response.body = {id: `${id}`};
-        console.log(ctx.request.body);
     });
     router.delete('/file/:id', async ctx => {
         const index = file.findIndex(({ id }) => id === ctx.params.id);
