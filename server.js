@@ -59,15 +59,18 @@ app.use(async (ctx, next) => {
     });
 
     router.get('/file', async ctx => {
+        console.log(file)
         ctx.response.body = file;
     });
     router.get('/file/:id', async ctx => {
-        const index = public.findIndex(({id}) => id === ctx.params.id);
-        ctx.response.body = file[index].img;
+        const index = file.findIndex(({id}) => id === ctx.params.id);
+        console.log(file[index].img)
+        ctx.response.body = URL.createObjectURL([file[index].img]);
     })
      router.post('/file/:id', async ctx => {
-         const i = file.findIndex(({id}) => id === ctx.params.id);         
-          public.push({...ctx.request.body,id: id});
+         const i = file.findIndex(({id}) => id === ctx.params.id); 
+         console.log(ctx.request.body.img);        
+          file[i].img = {...ctx.request.body.img};
           ctx.response.status = 204;
      });
     router.post('/file', async ctx => {
