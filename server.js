@@ -65,10 +65,11 @@ app.use(async (ctx, next) => {
     });
     router.get('/file/:id', async ctx => {
         const index = file.findIndex(({id}) => id === ctx.params.id);
-     
-        // ctx.response.body = URL.createObjectURL([file[index].img]);
+        ctx.response.body = URL.createObjectURL([file[i].link]);
     })
-    router.post('/file/:load', async ctx => { 
+    router.post('/file/:id', async ctx => { 
+        const index = file.findIndex(({id}) => id === ctx.params.id);
+
          const {name} = ctx.request;
          const {file} = ctx.request.files;
          const link = new Promise((resolve, reject) => {
@@ -87,6 +88,7 @@ app.use(async (ctx, next) => {
               readStream.pipe(writeStream);              
          });
          console.log(link);
+         file[index].file = link;
           ctx.response.status = 204;
      });
     router.post('/file', async ctx => {
