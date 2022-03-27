@@ -14,6 +14,7 @@ const public = path.join(__dirname, '/public')
 //const wsServer = new WS.Server({ server });
 const file = [];
 const koaStatic = require('koa-static');
+const { rejects } = require('assert');
 
 
 
@@ -26,7 +27,7 @@ app.use(koaBody({
     json: true,
     }));
     
-app.use(koaStatic('/public'));
+app.use(koaStatic(public));
 
 
 
@@ -59,22 +60,38 @@ app.use(async (ctx, next) => {
     });
 
     router.get('/file', async ctx => {
-        console.log(file)
+       
         ctx.response.body = file;
     });
     router.get('/file/:id', async ctx => {
         const index = file.findIndex(({id}) => id === ctx.params.id);
-        console.log(file[index].img)
-        ctx.response.body = URL.createObjectURL([file[index].img]);
+     
+        // ctx.response.body = URL.createObjectURL([file[index].img]);
     })
-     router.post('/file/:id', async ctx => {
-         const i = file.findIndex(({id}) => id === ctx.params.id); 
-         console.log(ctx.request.body.img);        
-          file[i].img = {...ctx.request.body.img};
+    router.post('/file/:load', async ctx => { 
+         const {name} = ctx.request;
+         const {file} = ctx.request.files;
+         const link = new Promise((resolve, reject) => {
+              const oldPath = file.path;
+              const fileName = ctx.request.id;
+              const newPath = path.join(public, fileName);
+              const callback = (error) => reject(error);  
+              const readStream = fs.createReadStream(oldPath);
+              const writeStream = fs.createWriteStream(newPath);
+              readStream.on('error', callback);
+              writeStream.on('error', callback);
+              readStream.on('close', () => {
+                  fs.unlink(oldPath, callback);
+                  resolve(fileName);
+              });
+              readStream.pipe(writeStream);              
+         });
+         console.log(link);
           ctx.response.status = 204;
      });
     router.post('/file', async ctx => {
-        const id = uuidv4()
+        const id = uuidv4();
+        
         file.push({...ctx.request.body,id: id});
         ctx.response.body = {id: `${id}`};
     });
