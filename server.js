@@ -14,7 +14,7 @@ const public = path.join(__dirname, '/public')
 //const wsServer = new WS.Server({ server });
 const file = [];
 const koaStatic = require('koa-static');
-const { rejects } = require('assert');
+
 
 
 
@@ -22,6 +22,7 @@ const { rejects } = require('assert');
 
 
 app.use(koaBody({
+    text: true,
     urlencoded: true,
     multipart: true,
     json: true,
@@ -65,17 +66,18 @@ app.use(async (ctx, next) => {
     });
     router.get('/file/:id', async ctx => {
         const index = file.findIndex(({id}) => id === ctx.params.id);
-        ctx.response.body = URL.createObjectURL([file[i].link]);
+        console.log(file[index].link)
+        ctx.response.body = file[index].link;
     })
     router.post('/file/:id', async ctx => { 
-        console.log(ctx.request.files);
+       
         const index = file.findIndex(({id}) => id === ctx.params.id);
 
          const {name} = ctx.request;
-         const {files} = ctx.request.files;
+         const upFile = ctx.request.files.file;
          const link = new Promise((resolve, reject) => {
-              const oldPath = files.path;
-              const fileName = ctx.request.id;
+              const oldPath = upFile.path;
+              const fileName = ctx.params.id;
               const newPath = path.join(public, fileName);
               const callback = (error) => reject(error);  
               const readStream = fs.createReadStream(oldPath);
@@ -88,13 +90,21 @@ app.use(async (ctx, next) => {
               });
               readStream.pipe(writeStream);              
          });
-         console.log(link);
-         file[index].file = link;
-          ctx.response.status = 204;
+         link.then((resolve) => {
+            file[index].link = resolve;
+            
+             
+         });  
+         ctx.response.status = 200;
      });
     router.post('/file', async ctx => {
         const id = uuidv4();
-        
+        if(ctx.request.body.type === 'avatar') {
+            const i = file.findIndex(({type}) => type === 'avatar');
+            if (i !== -1) {
+                file.splice(i, 1);
+             }; 
+        }
         file.push({...ctx.request.body,id: id});
         ctx.response.body = {id: `${id}`};
     });
@@ -112,7 +122,6 @@ app.use(async (ctx, next) => {
               text: `${ctx.request.body.text}`,
               time: `${ctx.request.body.time}`,
               id: `${ctx.params.id}`,
-              img: `${ctx.params.img}`,
           }}
          ctx.response.status = 204;
     })
